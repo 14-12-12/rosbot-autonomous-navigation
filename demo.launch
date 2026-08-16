@@ -1,0 +1,32 @@
+<launch>
+  <arg name="robot_name"   default="robot_1" />
+  <arg name="map"          default="map" />
+
+  <rosparam command ="load" file="$(find hiwonder_servo_controllers)/config/hiwonder_servo_controller.yaml" />
+
+  <include file="$(find hiwonder_navigation)/launch/navigation.launch">
+    <arg name="robot_name" value="$(arg robot_name)" />
+    <arg name="map"        value="$(arg map)" />
+  </include>
+
+  <!-- <include file="$(find hiwonder_navigation)/launch/rviz_navigation.launch" /> -->
+
+  <env name="PYTHONPATH"
+       value="/home/hiwonder/ros_ws/devel/lib/python3/dist-packages:$(env PYTHONPATH)"/>
+
+<node pkg="rostopic" type="rostopic" name="set_initial_pose"
+        args='pub -1 /robot_1/initialpose geometry_msgs/PoseWithCovarianceStamped "{header: {frame_id: &quot;robot_1/map&quot;}, pose: {pose: {position: {x: 0.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}, covariance: [0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06]}}"'
+        output="screen" />
+
+  <node name="waypoint_navigator" pkg="data_collect"
+      type="waypoint_navigator.py" output="screen" launch-prefix="xterm -e" />
+
+  <!-- Sign detection — publishes /detected_sign and /traffic_light_state -->
+  <node name="sign_detection" pkg="data_collect"
+      type="sign_detection_combined.py" output="screen" />
+
+  <!-- State machine — overrides move_base when sign or light detected -->
+  <node name="state_machine" pkg="data_collect"
+      type="state_machine_node.py" output="screen" />
+
+</launch>

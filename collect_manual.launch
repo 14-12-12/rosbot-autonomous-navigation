@@ -1,0 +1,16 @@
+<launch>
+  <!-- Change this to your actual camera topic -->
+  <arg name="camera_topic" default="/camera/color/image_raw"/>
+
+  <!-- Teleop: keyboard -->
+  <node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py"
+        name="teleop" output="screen" />
+
+  <!-- Your manual capture node (press S to save) -->
+  <node pkg="mini_project" type="image.py"
+        name="image_capture" output="screen">
+    <param name="camera_topic" value="$(arg camera_topic)"/>
+    <!-- optional: change save dir -->
+    <!-- <param name="save_dir" value="$(env HOME)/robot_dataset"/> -->
+  </node>
+</launch>

@@ -1,0 +1,27 @@
+<launch>
+  <arg name="robot_name"   default="robot_1" />
+  <arg name="map"          default="map" />
+
+  <include file="$(find hiwonder_navigation)/launch/navigation.launch">
+    <arg name="robot_name" value="$(arg robot_name)" />
+    <arg name="map"        value="$(arg map)" />
+  </include>
+
+  <include file="$(find hiwonder_navigation)/launch/rviz_navigation.launch" />
+
+  <node pkg="rostopic" type="rostopic" name="set_initial_pose"
+        args="pub -1 /robot_1/initialpose geometry_msgs/PoseWithCovarianceStamped
+        '{header: {frame_id: robot_1/map},
+          pose: {pose: {position: {x: 0.0, y: 0.0, z: 0.0},
+                        orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}},
+                 covariance: [0.25, 0.0, 0.0, 0.0, 0.0, 0.0,
+                              0.0, 0.25, 0.0, 0.0, 0.0, 0.0,
+                              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                              0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                              0.0, 0.0, 0.0, 0.0, 0.0, 0.06]}}}' "
+        output="screen" />
+
+  <node name="waypoint_navigator" pkg="data_collect"
+      type="waypoint_navigator.py" output="screen" launch-prefix="xterm -e" />
+</launch>
